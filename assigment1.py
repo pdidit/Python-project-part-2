@@ -199,6 +199,7 @@ while True:
     print("4. Print out a list of the countries that can be examined.")
     print("5. Allows the user to change the name of output files.")
     print("0. Exit the tool")
+    
     try:
         option = int(input("Which option do you wish to examine? "))
         if option == 1:

@@ -1,11 +1,12 @@
-# -*- coding: utf-8 -*-
 """
-Created on Sun Nov  8 21:35:26 2020
+Applied Scripting Assignment 1 part 1
 
-@author: padra
+@author: A00288402
 """
-
+#Import square function to be used in stst calculation
 from math import sqrt
+
+
 files = ["life_projects.csv", "income_for_project.csv"]
 income_data = []
 life_expectancy = []
@@ -31,6 +32,8 @@ year2016 = []
 year2017 = []
 year2018 = []
 year2019 = []
+
+#Loop through both files to be inputted 
 for file in files:
     try:
         with open(file) as life_data:
@@ -38,6 +41,7 @@ for file in files:
             
             for line in life_data:
                 try:
+                    #set values to defual in case of incorrect data is maintained. 
                     cty=""
                     yr00=0.0
                     yr01=0.0
@@ -60,11 +64,16 @@ for file in files:
                     yr18=0.0
                     yr19=0.0
                     line.strip()
+                    # I had two issue with the imports. 
+                    #First Congo and Micronesia had further comments in the name, addition processing needed. 
+                    #had to extract the name in two part and stick together
                     if line.find("Congo") != -1 or line.find("Micronesia") != -1:
                         cty1=""
                         cty2=""
                         cty1, cty2, yr00, yr01, yr02, yr03, yr04, yr05, yr06, yr07, yr08, yr09, yr10, yr11, yr12, yr13, yr14, yr15, yr16, yr17, yr18, yr19 = line.split(",")
                         cty= cty1+","+cty2
+                    #Second issue was that three country (Andorra, Marcsall islands and Dominica)
+                    # had no entries for 2018 and 2019. Had to delete the extra comments form the line
                     elif line.find(",,") != -1:
                         line = line.replace(',,', ' ')
                         cty, yr00, yr01, yr02, yr03, yr04, yr05, yr06, yr07, yr08, yr09, yr10, yr11, yr12, yr13, yr14, yr15, yr16, yr17 = line.split(",")
@@ -72,7 +81,8 @@ for file in files:
                         yr19 = 0
                     else:
                         cty, yr00, yr01, yr02, yr03, yr04, yr05, yr06, yr07, yr08, yr09, yr10, yr11, yr12, yr13, yr14, yr15, yr16, yr17, yr18, yr19 = line.split(",")
-        
+                    
+                    #append entries in to list to be used for the different files
                     country.append(cty)
                     year2000.append(float(yr00))
                     year2001.append(float(yr01))
@@ -99,6 +109,7 @@ for file in files:
                     print("there is value error")
     except FileNotFoundError:
         print("there was an issue with accessing the file")
+    #Append the enties the correct lists
     if file == "life_projects.csv":
         life_expectancy.append(country)
         life_expectancy.append(year2000)
@@ -187,10 +198,12 @@ for file in files:
         year2019 = []
     print("file has downloaded:"+ file)
 
+#Set the deafault name of the files
 option1file = "default1.csv"
 option2file = "dafault2.csv"
 option3file = "default3.csv"
 while True:
+    #Add a print to give space between interations 
     print()
     print("Welcome to Analysis tool to look at life expectancy.")
     print("1. To look as stat of life expectancy for a particular year.")
@@ -205,7 +218,10 @@ while True:
         if option == 1:
             yearToExam = int(input("What year do you wish to examine? "))
             if yearToExam >= 2000 and yearToExam <= 2019:
+                #deleted 2999 from the year as it would match up with LIst that I want to use.
                 yearindex = yearToExam - 1999
+                
+                #this next section is to take into account the countries with 2018 and 2019 missing
                 yearexam =[]
                 yearexam = life_expectancy[yearindex]
                 try: 
@@ -214,24 +230,31 @@ while True:
                     yearexam.remove(0.0)
                 except ValueError:
                     print("")
+                    
+                #this nex section it will work out the average and standard deviation 
+                #I need to work out the deviation and squre devication as well
                 averageExpectedLife = sum(yearexam)/len(yearexam)
                 deviation = [x - averageExpectedLife for x in yearexam ]
                 sqrDeviation = [(x - averageExpectedLife) ** 2 for x in yearexam]
                 standardDev = sqrt(sum(sqrDeviation)/(len(yearexam)-1))
                 
+                #This next secion will calculation the mode of the year selected 
                 frequencies = {}
-                for value in life_expectancy[yearindex]:
+                for value in life_expectancy[yearindex]:    
                     if not value in frequencies:
                         frequencies[value] = 1
                     else:
                         frequencies[value] += 1
-                    
                 modeYear = max(frequencies, key=frequencies.get)
+                
+                #Prints out the reult include the max and min values
                 print(f"The average Life expectancy for the year {yearToExam}: {averageExpectedLife:.2f} " ) 
                 print(f"The mode for the {yearToExam} is {modeYear}")
                 print(f"The range of life expectancy for the year {yearToExam} is from {min(yearexam)} and {max(yearexam)}")
                 print(f"The standard deviation Life expectancy for the year {yearToExam}: {standardDev}" )
                 
+                #Send ing the output to the file
+                #Put line into a list then used str function to put into file
                 t=[]
                 try:
                     with open(option1file, 'a') as out_file:
@@ -241,33 +264,46 @@ while True:
                         t.append(modeYear)
                         t.append(averageExpectedLife)
                         t.append(standardDev)
-                        s = str(t)
-                        s.strip('[')
-                        s.strip(']')
-                        
+                        s = str(t)                        
                         out_file.write(s)
                         out_file.write("\n")
                 except FileNotFoundError:
                      print("file not found")
+                     
+            #message for incorrect value entry
             else:
                 print("That is the wrong year " , yearToExam)
+                
+        #Thie is the implementation for the second option
         elif option == 2:
             yearToExam2 = int(input("What year do you wish to examine? "))
-            if yearToExam >= 2000 and yearToExam <= 2019:
-                sort1 = int(input("How would you like to sort (1 life expancy 2. income)? "))
+            if yearToExam2 >= 2000 and yearToExam2 <= 2019:
+                sort1 = int(input("How would you like to sort (1. life expectancy 2. income)? "))
                 if sort1 == 1 or sort1 == 2:
-               
+                    #Used to indication which list to be used
                     yearindex = yearToExam2 - 1999
+                    
+                    #Clear variable to avoid incorrect data
                     copiedtable=[]
                     sortBy = ""
+                    
+                    #As I had 2 files to deal with I need to take the income lists and extract for 
+                    #the year selected. 
                     for country in life_expectancy[0]:
                         copiedtable.append(income_data[yearindex][income_data[0].index(country)])
                     
+                    #So I wanted to stip the three table together (name , life expectancy and invomce)
+                    #Then sort them using a lambda function to help decide on with table to sort. 
+                    #Income or life expectancy
                     comparelist = sorted(zip(life_expectancy[0], life_expectancy[yearindex], copiedtable), key=lambda x: x[sort1])
+                   
+                    #Add this to allow the output file tell what the data is related too
                     if sort1 == 1:
                         sortBy = "Life Expectancy"
                     elif sort1 == 2:
                         sortBy = "Income"
+                        
+                    #output the data to a file
                     try:
                         with open(option2file, 'a') as out_file2:
                             out_file2.write("This is sort by " + sortBy + "for the year " + str(yearToExam2) + ".\n")
@@ -286,56 +322,81 @@ while True:
                 print("This is a incorrect year")
         elif option == 3:
             selection3Country=input("What is the country you want to examine? ")
-            lifeIndex = life_expectancy[0].index(selection3Country)
-            incomeindex = income_data[0].index(selection3Country)
-            life2 = []
-            income2=[]
-            for i in range(2000, 2020):
-                life2.append(life_expectancy[i-1999][lifeIndex])
-                income2.append(income_data[i-1999][incomeindex])
-            try: 
-                life2.remove(0.0)
-                life2.remove(0.0)
-                del income2[-1]
-                del income2[-1]
-            except ValueError:
-                    print("")
-                    
-            life_mean = sum(life2)/len(life2)
-            income_mean = sum(income2)/len(income2)
-            
-            income_dev = [x - income_mean for x in income2]
-            life_dev = [y + life_mean for y in life2]
-            
-            life_income_deviations = [ x*y for (x,y) in zip(income_dev, life_dev)]
-            
-            income_sqr_dev = [ ( x - income_mean) ** 2 for x in income2]
-            life_sqr_dev = [ ( y - life_mean ) ** 2 for y in life2]
-            
-            correlation = sum(life_income_deviations)/(sqrt(sum(income_sqr_dev))*sqrt(sum(life_sqr_dev)))
-            
-            print(f"The correlation for {selection3Country} is {correlation}")
-            
             try:
-                with open(option3file, 'a') as out_file:
-                    out_file.write(selection3Country + "," + str(correlation) + "\n")
-            except FileNotFoundError:
-                print("file was not found")
+                #This is done to find extract the data for a 
+                # It takes the index position of the name and then extract accross each year
+                # for both life expectancy and income
+                lifeIndex = life_expectancy[0].index(selection3Country)
+                incomeindex = income_data[0].index(selection3Country)
+                
+                #This section is required as 3 countries are missing data for 20018 and 2019
+                #I did this by deleting the entries from the Lists
+                life2 = []
+                income2=[]
+                for i in range(2000, 2020):
+                    life2.append(life_expectancy[i-1999][lifeIndex])
+                    income2.append(income_data[i-1999][incomeindex])
+                #I used the fact that remove will throw an except if the value  is not there
+                # in order to know to remove the entries or not. If it doesn't throw and expection
+                # It will not alter the tables. 
+                try: 
+                    life2.remove(0.0)
+                    life2.remove(0.0)
+                    del income2[-1]
+                    del income2[-1]
+                except ValueError:
+                    print("")
+                        
+                
+                # most of the formals are from the notes in the lecture    
+                life_mean = sum(life2)/len(life2)
+                income_mean = sum(income2)/len(income2)
+                
+                income_dev = [x - income_mean for x in income2]
+                life_dev = [y + life_mean for y in life2]
+                
+                life_income_deviations = [ x*y for (x,y) in zip(income_dev, life_dev)]
+                
+                income_sqr_dev = [ ( x - income_mean) ** 2 for x in income2]
+                life_sqr_dev = [ ( y - life_mean ) ** 2 for y in life2]
+                
+                correlation = sum(life_income_deviations)/(sqrt(sum(income_sqr_dev))*sqrt(sum(life_sqr_dev)))
+                
+                print(f"The correlation for {selection3Country} is {correlation}")
+                
+                #output of result to file with error handling.
+                try:
+                    with open(option3file, 'a') as out_file3:
+                        out_file3.write(selection3Country + "," + str(correlation) + "\n")
+                except FileNotFoundError:
+                    print("file was not found")
+            except ValueError:
+                print("The country name is not correct, Please check with using option 4")
+        
+        #simple prints a list of the names available 
         elif option == 4:
             for country in life_expectancy[0]:
                 print(country)
+        
+        #This option allow the user to change the name of the file that the output wout be sent to
+        # It will just change the default file name from above
         elif option == 5:
-            option5=int(input("Which file name do you want to change? "))
+            option5=int(input("Which option file name do you want to change? "))
             if option5 == 1:
-                option1file = input("Please put the file name for option 1: ")
+                option1file = input("Please put the new file name for option 1: ")
             elif option5 == 2:
-                option2file = input("Please put the file name for option 2: ")
+                option2file = input("Please put the new file name for option 2: ")
             elif option5 == 3:
-                option3file = input("Please put the file name for option 3: ")
+                option3file = input("Please put the new file name for option 3: ")
+        
+        # option to exit program
         elif option == 0:
             print("Thank you for using this tool.")
             break
+        
+        #option for incorrect value entered
         else:
             print("Your selection is incorrect. Please check again.")
+    #Exception in case of string entered instead of integer.  
     except ValueError:
         print("There was an incorrect entry!!!!  Please check the options again")
